@@ -184,6 +184,11 @@ subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEne
     real*8 deltaE, genrand_real2
 
     integer :: randPoint, i, j, k
+    real*8 :: expo(-8: 8)
+
+    do i = -8, 8
+        expo(i) = exp(-i/temp)
+    end do
 
     newEnergy = energy
     do k = 1, width*height
@@ -202,7 +207,7 @@ subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEne
             mat(i,j) = -mat(i,j)
             newEnergy = newEnergy + deltaE
         else
-            if (genrand_real2() <= exp(-deltaE/temp)) then
+            if (genrand_real2() <= expo(int(deltaE))) then
                 mat(i,j) = -mat(i,j)
                 newEnergy = newEnergy + deltaE
             end if

@@ -1,4 +1,5 @@
 # Montecarlo simulation for an Ising model
+## By Marc Parcerisa
 
 Compile and run on windows with:
 

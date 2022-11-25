@@ -8,6 +8,7 @@ program main
 
     real*8 energ, E
     integer*2 genrand_int2
+    real*8 timeStart, timeEnd
 
     integer *2, allocatable, dimension(:, :) :: S
     integer, allocatable, dimension(:) :: PBCx, PBCy
@@ -23,6 +24,7 @@ program main
     ! User defined variables
     integer width, height, Niter
     real*8 T
+
 
     call parse_arguments(width, height, Niter, T)
 
@@ -75,8 +77,11 @@ program main
     write(*, *) "Energy:", E
 
     write(*, *) "Running the Metropolis algorithm"
+    call cpu_time(timeStart)
     call metropolis(S, width, height, PBCx, PBCy, E, T, Niter)
+    call cpu_time(timeEnd)
 
+    write(*, "(a, f10.4, a)") "Done! Time elapsed: ", timeEnd - timeStart, " seconds"
     write(*, *) "Generating plot of the convergence"
     call system("gnuplot gnu/plot_convergence.gnu")
 

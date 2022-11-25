@@ -13,7 +13,12 @@ program main
     integer, allocatable, dimension(:) :: PBCx, PBCy
 
     integer i, j
-    integer, parameter :: seed = 123456789
+    integer, parameter :: seed = 123456781
+    ! Watch out! Depending on the seed, the program converges at different speeds, and may even
+    ! not converge at all or converge on a metastable state.
+    ! I recommend the seed 123456781, which converges pretty rapidly.
+    ! The seed 123456782 gives a nice example of a metastable state.
+    ! And the seed 123456789 does not converge in at least 3000 iterations.
 
     ! User defined variables
     integer width, height, Niter
@@ -36,8 +41,6 @@ program main
         PBCy(i) = i
     end do
 
-    ! Initialize the array
-    call init_genrand(seed)
 
 
     write(*, *) "Testing energy function: Generating a skewed system with S = +1"
@@ -57,8 +60,10 @@ program main
     end if
 
 
+
     write(*, *) "Now generating a random system with S = +1 or -1"
     ! Generate a random spin array
+    call init_genrand(seed)
     do i = 1, width
         do j = 1, height
             S(i,j) = genrand_int2()

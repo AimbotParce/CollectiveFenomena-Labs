@@ -17,7 +17,7 @@ program main
     call system("gfortran -O3 .\mt19937ar.o .\P3-exercici-1.f90 -o .\execs\P3-exercici-1.exe")
 
     do i = 1, size(T, dim=1)
-        write(filenames(i), "(A, f5.3, A)") "P3-", T(i), ".dat"
+        write(filenames(i), "(A, f5.3, A)") "P3-T-", T(i), ".dat"
 
         write(command, "(a, i2, a, i2, a, i5, a, f5.3, 2a)") ".\execs\P3-exercici-1.exe -s ", width, " ", height, &
                         " -n ", Niter, " -t ", T(i), " -o ", filenames(i)

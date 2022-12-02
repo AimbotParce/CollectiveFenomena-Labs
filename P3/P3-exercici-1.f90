@@ -11,24 +11,21 @@ program main
     real*8 timeStart, timeEnd
     character(len=30) :: fileName
     logical :: makeGraphs
+    integer seed
 
     integer *2, allocatable, dimension(:, :) :: S
     integer, allocatable, dimension(:) :: PBCx, PBCy
 
     integer i, j
-    integer, parameter :: seed = 123456781
-    ! Watch out! Depending on the seed, the program converges at different speeds, and may even
-    ! not converge at all or converge on a metastable state.
-    ! I recommend the seed 123456781, which converges pretty rapidly.
-    ! The seed 123456782 gives a nice example of a metastable state.
-    ! And the seed 123456789 does not converge in at least 3000 iterations.
 
     ! User defined variables
     integer width, height, Niter
     real*8 T
 
 
-    call parse_arguments(width, height, Niter, T, fileName, makeGraphs)
+    call parse_arguments(width, height, Niter, T, fileName, makeGraphs, seed)
+    write(*, "(a,i3,a,i3,a,i6,a,f5.3,3a,l1,a,i5)") " width: ", width, " height: ", height, " Niter: ", Niter, " T: ", T, &
+                 " fileName: ", fileName, " graph: ", makeGraphs, " seed: ", seed
 
     allocate(S(1:width,1:height))
     allocate(PBCx(0:width+1))
@@ -70,10 +67,10 @@ program main
 end program main
 
 
-subroutine parse_arguments(width, height, Niter, T, fileName, makeGraphs)
+subroutine parse_arguments(width, height, Niter, T, fileName, makeGraphs, seed)
 
     implicit none
-    integer, intent(out) :: width, height, Niter
+    integer, intent(out) :: width, height, Niter, seed
     real*8, intent(out) :: T
     
     integer :: num_args, i
@@ -94,14 +91,21 @@ subroutine parse_arguments(width, height, Niter, T, fileName, makeGraphs)
     T = 1.3d0
     fileName = "P3-montecarlo-out.dat"
     makeGraphs = .false.
+    seed = 123456781
+    ! Watch out! Depending on the seed, the program converges at different speeds, and may even
+    ! not converge at all or converge on a metastable state.
+    ! I recommend the seed 123456781, which converges pretty rapidly.
+    ! The seed 123456782 gives a nice example of a metastable state.
+    ! And the seed 123456789 does not converge in at least 3000 iterations.
+
 
 
     i = 1
     do while ( i <= num_args )
         ! Check if the argument starts with a dash
         if (args(i)(1:1) == '-') then
-            ! Check if the argument is -s
-            if (args(i)(2:2) == 's') then
+            ! Check if the argument is -l
+            if (args(i)(2:2) == 'l') then
                 read(args(i+1), "(i3)") width
                 read(args(i+2), "(i3)") height
                 i = i + 2 ! Skip the next two arguments
@@ -120,6 +124,10 @@ subroutine parse_arguments(width, height, Niter, T, fileName, makeGraphs)
             ! Check if the argument is -g
             else if (args(i)(2:2) == 'g') then
                 makeGraphs = .true.
+            ! Check if the argument is -s
+            else if (args(i)(2:2) == 's') then
+                read(args(i+1), "(i5)") seed
+                i = i + 1 ! Skip the next argument
             else
                 write(*, *) "Unknown argument ", args(i)
             end if

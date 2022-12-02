@@ -1,6 +1,18 @@
 # Montecarlo simulation for an Ising model
 ### By Marc Parcerisa
 
+
+## For the P3-temperature-convergence.f90 script
+
+Compile and run on windows with:
+
+`
+gfortran -O3 .\P3-temperature-convergence.f90 -o .\execs\P3-temperature-convergence.exe; ./execs/P3-temperature-convergence.exe -s 48 48 -n 3000
+`
+
+
+## For the P3-exercici-1.f90 script
+
 Compile and run on windows with:
 
 `

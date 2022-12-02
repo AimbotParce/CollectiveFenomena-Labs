@@ -239,6 +239,7 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temp, Niter, fileN
     if ( ios /= 0 ) stop "Error opening file dat/" // fileName
 
     write(10, *) "# Monte Carlo simulation of a 2D Ising model"
+    write(10, *) "# {width:", width, ", height:", height, ", temperature:", temp, ", iterations:", Niter, "}"
     write(10, "(a2, a12, 3a14)") "# ", "Iter", "Energy", "Energ Check", "Magnetization"
     do i = 1, Niter
         call monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEnergy)

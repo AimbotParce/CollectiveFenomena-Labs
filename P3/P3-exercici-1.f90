@@ -230,6 +230,7 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temp, Niter, fileN
     real*8 newEnergy, energ
     character(len=30), intent(in) :: fileName
 
+    character(len=40) fmt
     integer magne, mag
 
     integer i, ios
@@ -239,7 +240,8 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temp, Niter, fileN
     if ( ios /= 0 ) stop "Error opening file dat/" // fileName
 
     write(10, *) "# Monte Carlo simulation of a 2D Ising model"
-    write(10, *) "# {width:", width, ", height:", height, ", temperature:", temp, ", iterations:", Niter, "}"
+    fmt = "(a, i3, a, i3, a, f5.3, a, i5, a)"
+    write(10, fmt) "# {width:", width, ", height:", height, ", temperature:", temp, ", iterations:", Niter, "}"
     write(10, "(a2, a12, 3a14)") "# ", "Iter", "Energy", "Energ Check", "Magnetization"
     do i = 1, Niter
         call monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEnergy)

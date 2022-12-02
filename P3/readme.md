@@ -18,6 +18,14 @@ Compile and run on windows with
 gfortran -O3 .\P3-seed-convergence.f90 -o .\execs\P3-seed-convergence.exe; ./execs/P3-seed-convergence.exe -l 48 48 -n 3000 -t 1.3
 `
 
+## For the P3-promitjos.f90 script
+
+Compile and run on windows with
+
+`
+gfortran -O3 .\P3-promitjos.f90 -o .\execs\P3-promitjos.exe; .\execs\P3-promitjos.exe -i .\dat\P3-T-1.500.dat
+`
+
 ## For the P3-exercici-1.f90 script
 
 Compile and run on windows with:

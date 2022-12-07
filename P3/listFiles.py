@@ -9,6 +9,8 @@ def listFiles(dir, fileName):
         for root, dirs, files in os.walk(dir):
             f.write(str(len(files)) + "\n")
             for file in files:
+                if file.startswith("."):
+                    continue  # skip hidden files
                 f.write(os.path.join(root, file) + "\n")
 
 

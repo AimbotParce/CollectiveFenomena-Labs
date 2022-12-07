@@ -19,8 +19,10 @@ program main
 
     call read_header(10, width, height, iterations, temperature)
 
-
-
+    write(*,*) "width = ", width
+    write(*,*) "height = ", height
+    write(*,*) "iterations = ", iterations
+    write(*,*) "temperature = ", temperature
 
 end program main
 
@@ -66,19 +68,48 @@ subroutine read_header(fileUnit, width, height, iterations, temperature)
     real*8, intent(out) :: temperature
 
     character(len=300) :: line
+    character(len=500) :: stringdata
     character(len=40), dimension(:, :), allocatable :: tokens
     integer ios, i, j, num_tokens, last, pointr, find
-    logical :: inDict
+    logical :: inDict, searching
 
-    read(fileUnit, '(a)', iostat=ios) 
-    read(fileUnit, '(a)', iostat=ios) line
-    read(fileUnit, '(a)', iostat=ios) 
+    ! Read lines one by one until we find '{' or '}', join them in a single string
+    inDict = .false.
+    stringdata = ''
+    searching = .true.
+    num_tokens = 0 ! I'll use this to count how many lines I have to advance
+    do while ( searching )
+        read(fileUnit, '(a)', iostat=ios) line
+        if (ios /= 0) stop "Error reading file"
+
+        ! Eliminate blank spaces at the beginning of the line
+        write(line,"(a)") adjustl(line)
+
+        ! Check if we are inside the metadata
+        if ( line(1:1) /= '#' ) then
+            searching = .false.
+        else
+            num_tokens = num_tokens + 1
+            do i = 1, len_trim(line)
+                if ( line(i:i) == '}' ) inDict = .false.
+                if ( inDict .and. line(i:i) /= ' ' ) write(stringdata, "(2a)") trim(stringdata), line(i:i)
+                if ( line(i:i) == '{' ) inDict = .true.
+            end do
+        end if
+    end do
+    
+    ! Rewind and advance back to the beginning of the data
+    rewind (fileUnit)
+    do i = 1, num_tokens
+        read(fileUnit, '(a)', iostat=ios)
+        if (ios /= 0) stop "Error reading file"
+    end do
+
 
     ! Compute the number of tokens
     num_tokens = 0
     do i = 1, len_trim(line)
         if (line(i:i) == ':') num_tokens = num_tokens + 1
-        
     end do
 
     allocate(tokens(num_tokens, 2))
@@ -86,22 +117,21 @@ subroutine read_header(fileUnit, width, height, iterations, temperature)
     ! Read the tokens
     last = 1
     pointr = 1
-    inDict = .false.
-    do i = 1, len_trim(line)
-        if (line(i:i) == '{') then
-            inDict = .true.
+    write(*,*) stringdata, len_trim(stringdata)
+    do i = 1, len_trim(stringdata)
+        write(*,*) "TEST", i
+        if (stringdata(i:i) == ':') then
+            tokens(pointr, 1) = adjustl(stringdata(last:i-1))
             last = i+1
-        else if (line(i:i) == ':') then
-            tokens(pointr, 1) = adjustl(line(last:i-1))
-            last = i+1
-        else if (line(i:i) == ',' .or. line(i:i) == '}') then
-            tokens(pointr, 2) = adjustl(line(last:i-1))
+        else if (stringdata(i:i) == ',') then
+            tokens(pointr, 2) = adjustl(stringdata(last:i-1))
             last = i+1
             pointr = pointr + 1
         end if
-        if (line(i:i) == '}') inDict = .false.
     end do
 
+
+    ! Read the values
     read(tokens(find(num_tokens, tokens,"width"), 2), "(i40)") width
     read(tokens(find(num_tokens, tokens,"height"), 2), "(i40)") height
     read(tokens(find(num_tokens, tokens,"iterations"), 2), "(i40)") iterations

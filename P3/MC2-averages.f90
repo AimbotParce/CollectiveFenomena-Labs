@@ -135,7 +135,7 @@ program main
                 end if
             end if
         end do
-
+        
         energy(i) = energy(i) / count
         energySquared(i) = energySquared(i) / count
         magne(i) = magne(i) / count

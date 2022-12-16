@@ -7,6 +7,7 @@
     originalSeed = 1020923192,
     Niter = 10000,
     skipIter = 1000,
-    height = 48
+    meanEvery = 10,
+    height = 48,
     width = 48,
 &end

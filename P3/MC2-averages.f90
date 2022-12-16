@@ -5,10 +5,11 @@ program main
 
     implicit none
     
-    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature
+    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature, meanEvery
     real*8 :: temperature, finalTemperature
     character(len=30) :: name
-    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, height, width
+    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, meanEvery,&
+                     height, width
 
     character(len=100) :: filename
     integer fileCount
@@ -23,7 +24,7 @@ program main
     integer, allocatable, dimension(:) :: temperatureCounters ! How many times each temperature appears
     real*8 E, initTime, finalTime
 
-    integer ios, i, j
+    integer ios, i, j, count
     
     ! Read the input file
     open(unit=10, file="dat/MC2.dat", iostat=ios)
@@ -118,24 +119,28 @@ program main
         magne(i) = 0.d0
         magneSquared(i) = 0.d0
         magneAbs(i) = 0.d0
+        count = 0
         do j = 1, Niter
             read(11, '(i14, f14.1, i14)', iostat=ios) iteration, E, M
             if (ios /= 0) stop "Error reading file "// trim(filename)
 
             if ( j > skipIter ) then
-                energy(i) = energy(i) + E
-                energySquared(i) = energySquared(i) + E**2
-                magne(i) = magne(i) + M
-                magneSquared(i) = magneSquared(i) + M**2
-                magneAbs(i) = magneAbs(i) + abs(M)
+                if (mod(j-skipIter, meanEvery) == 0) then
+                    energy(i) = energy(i) + E
+                    energySquared(i) = energySquared(i) + E**2
+                    magne(i) = magne(i) + M
+                    magneSquared(i) = magneSquared(i) + M**2
+                    magneAbs(i) = magneAbs(i) + abs(M)
+                    count = count + 1
+                end if
             end if
         end do
 
-        energy(i) = energy(i) / (Niter - skipIter)
-        energySquared(i) = energySquared(i) / (Niter - skipIter)
-        magne(i) = magne(i) / (Niter - skipIter)
-        magneSquared(i) = magneSquared(i) / (Niter - skipIter)
-        magneAbs(i) = magneAbs(i) / (Niter - skipIter)
+        energy(i) = energy(i) / count
+        energySquared(i) = energySquared(i) / count
+        magne(i) = magne(i) / count
+        magneSquared(i) = magneSquared(i) / count
+        magneAbs(i) = magneAbs(i) / count
 
         write(*,*) "    Temperature: ", temperatures(i)
         write(*,*) "    Energy: ", energy(i)

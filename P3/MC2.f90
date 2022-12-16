@@ -4,11 +4,12 @@ program main
     
 
 
-    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature
+    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature, meanEvery
     real*8 :: temperature, finalTemperature
     character(len=30) :: name
-    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, height, width
-
+    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, meanEvery,&
+                     height, width
+                     
     real*8 energ, E
     integer*2 genrand_int2
     real*8 timeStart, timeEnd, globalTimeStart, globalTimeEnd, temp, dtemp

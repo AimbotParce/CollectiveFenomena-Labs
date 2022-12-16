@@ -4,20 +4,20 @@ program main
     
 
 
-    integer :: seedCount, originalSeed, Niter, skipIter, height, width
-    real*8 :: temperature
+    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature
+    real*8 :: temperature, finalTemperature
     character(len=30) :: name
-    namelist /input/ name, temperature, seedCount, originalSeed, Niter, skipIter, height, width
+    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, height, width
 
     real*8 energ, E
     integer*2 genrand_int2
-    real*8 timeStart, timeEnd, globalTimeStart, globalTimeEnd
+    real*8 timeStart, timeEnd, globalTimeStart, globalTimeEnd, temp, dtemp
     character(len=30) :: fileName
     integer *2, allocatable, dimension(:, :) :: S
     integer, allocatable, dimension(:) :: PBCx, PBCy
 
-    integer i, j, seed, ios
-    character(len=10) :: seedStr
+    integer i, j, k, seed, ios
+    character(len=10) :: seedStr, tempStr
 
     ! Read the input file
     open(unit=10, file="dat/MC2.dat", iostat=ios)
@@ -56,17 +56,28 @@ program main
 
     call cpu_time(globalTimeStart)
 
+    dtemp = (finalTemperature - temperature)/real(numTemperature, 8)
+    do k = 1, numTemperature
+        temp = temperature + real(k-1, 8)*dtemp
     do seed = originalSeed, originalSeed + seedCount - 1
 
         call cpu_time(timeStart)
 
         write(seedStr, "(i10)") seed
-        fileName = trim(name)//"_"//trim(adjustl(seedStr))//".dat"
+        write(tempStr, "(f10.4)") temp
+        fileName = trim(name)//"_"//trim(adjustl(tempStr))//"_"//trim(adjustl(seedStr))//".dat"
         open(unit=10, file="dat/seedAverages/"//fileName, iostat=ios)
         if ( ios /= 0 ) stop "Error opening file dat/seedAverages/"//fileName
 
-        write(10, *) "# { temperature:", temperature, "seed:", seed, "Niter:", Niter, "skipIter:", skipIter, "height:", &
-                    & height, "width:", width, "}"
+        ! write(10, *) "# { temperature:", temperature, "seed:", seed, "Niter:", Niter, "skipIter:", skipIter, "height:", &
+        !             & height, "width:", width, "}"
+        write(10, *) "# temperature = ", temp
+        write(10, *) "# seed = ", seed
+        write(10, *) "# Niter = ", Niter
+        write(10, *) "# skipIter = ", skipIter
+        write(10, *) "# height = ", height
+        write(10, *) "# width = ", width
+        write(10, *) "#"
 
         write(*, *) "Runing metropolis algorithm with seed ", seed
         ! Generate a random spin array
@@ -77,7 +88,7 @@ program main
             enddo
         enddo
 
-        call metropolis(S, width, height, PBCx, PBCy, E, temperature, Niter, 10)
+        call metropolis(S, width, height, PBCx, PBCy, E, temp, Niter, 10)
 
         close(10)
 
@@ -85,7 +96,7 @@ program main
         write(*, "(a, f10.4, a)") "    Done! Time elapsed: ", timeEnd - timeStart, " seconds"
 
     end do
-
+    end do
     call cpu_time(globalTimeEnd)
     write(*, "(a, f10.4, a)") "Total time elapsed: ", globalTimeEnd - globalTimeStart, " seconds"
 end program main

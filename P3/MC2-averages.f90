@@ -5,19 +5,21 @@ program main
 
     implicit none
     
-    integer :: seedCount, originalSeed, Niter, skipIter, height, width
-    real*8 :: temperature
+    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature
+    real*8 :: temperature, finalTemperature
     character(len=30) :: name
-    namelist /input/ name, temperature, seedCount, originalSeed, Niter, skipIter, height, width
+    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, height, width
 
     character(len=100) :: filename
     integer fileCount
 
-    real*8, allocatable, dimension(:) :: energy, energySquared, magne, magneSquared, magneAbs
-    real*8 :: energyAverage, energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage
-    logical inMetadata
+    real*8, allocatable, dimension(:) :: energy, energySquared, magne, magneSquared, magneAbs, temperatures
+    real*8, allocatable, dimension(:) :: energyAverage,energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage
+    real*8 :: differentTemperatures(1000) ! Different temperatures arbitrarily large
+    logical inMetadata, inList
     character(len=100) :: line
-    integer lenMetadata, iteration, M
+    integer lenMetadata, iteration, M, temperatureCount ! temperatureCount is the number of different temperatures
+    integer, allocatable, dimension(:) :: temperatureCounters ! How many times each temperature appears
     real*8 E
 
     integer ios, i, j
@@ -34,7 +36,7 @@ program main
     write(*,*) "Computing averages for all the documents in the folder dat/seedAverages"
     write(*,*) "---------------------------------------------------------------"
     write(*,*) "Name: ", name
-    write(*,*) "Temperature: ", temperature
+    ! write(*,*) "Temperature: ", temp
     write(*,*) "Seed count: ", seedCount
     write(*,*) "Original seed: ", originalSeed
     write(*,*) "Iterations: ", Niter
@@ -55,7 +57,8 @@ program main
     write(*,"(a,i5, a)") "Reading ", fileCount, " files"
 
     ! Allocate the arrays
-    allocate(energy(fileCount), energySquared(fileCount), magne(fileCount), magneSquared(fileCount), magneAbs(fileCount))
+    allocate(energy(fileCount), energySquared(fileCount), magne(fileCount), magneSquared(fileCount), magneAbs(fileCount)) 
+    allocate(temperatures(fileCount))
 
     ! Read the files one by one, and compute their averages
     do i = 1, fileCount
@@ -81,6 +84,23 @@ program main
                 inMetadata = .false. 
             else 
                 lenMetadata = lenMetadata + 1
+                ! Read the metadata; if it is the temperature, save it
+                if ( index(line, "temperature") > 0 ) then
+                    read(line(index(line, "=")+1:), '(f14.1)', iostat=ios) temperatures(i)
+                    if (ios /= 0) stop "Error reading file "// trim(filename)
+                    ! Check if the temperature is already in the list
+                    inList = .false.
+                    do j = 1, temperatureCount
+                        if ( temperatures(i) == differentTemperatures(j) ) then
+                            inList = .true.
+                            exit
+                        end if
+                    end do
+                    if ( .not. inList ) then
+                        temperatureCount = temperatureCount + 1
+                        differentTemperatures(temperatureCount) = temperatures(i)
+                    end if
+                end if
             end if
         end do
         ! Rewind and advance back to the beginning of the data
@@ -114,6 +134,7 @@ program main
         magneSquared(i) = magneSquared(i) / (Niter - skipIter)
         magneAbs(i) = magneAbs(i) / (Niter - skipIter)
 
+        write(*,*) "    Temperature: ", temperatures(i)
         write(*,*) "    Energy: ", energy(i)
         write(*,*) "    Energy squared: ", energySquared(i)
         write(*,*) "    Magnetization: ", magne(i)
@@ -130,24 +151,64 @@ program main
     write(*,*) "---------------------------------------------------------------"
     write(*,*) "Computing the overall averages"
 
-    energyAverage = sum(energy) / fileCount
-    energySquaredAverage = sum(energySquared) / fileCount
-    magneAverage = sum(magne) / fileCount
-    magneSquaredAverage = sum(magneSquared) / fileCount
-    magneAbsAverage = sum(magneAbs) / fileCount
+    ! Allocate the arrays for the averages
+    allocate(energyAverage(temperatureCount), energySquaredAverage(temperatureCount), &
+             magneAverage(temperatureCount), magneSquaredAverage(temperatureCount), &
+             magneAbsAverage(temperatureCount), temperatureCounters(temperatureCount))
 
-    write(*,*) "    Energy: ", energyAverage, " +/- ", sqrt(energySquaredAverage - energyAverage**2)
-    write(*,*) "    Energy squared: ", energySquaredAverage
-    write(*,*) "    Magnetization: ", magneAverage, " +/- ", sqrt(magneSquaredAverage - magneAverage**2)
-    write(*,*) "    Magnetization squared: ", magneSquaredAverage
-    write(*,*) "    Magnetization absolute: ", magneAbsAverage
+    ! Sum all the values for each temperature
+    ! Initialize all the arrays to zero
+    do i = 1, temperatureCount
+        temperatureCounters(i) = 0
+        energyAverage(i) = 0.d0
+        energySquaredAverage(i) = 0.d0
+        magneAverage(i) = 0.d0
+        magneSquaredAverage(i) = 0.d0
+        magneAbsAverage(i) = 0.d0
+    end do
+    ! Run for all the documents, and sum the values for each temperature
+    do i = 1, fileCount
+        ! Find the temperature
+        do j = 1, temperatureCount
+            if ( temperatures(i) == differentTemperatures(j) ) then
+                temperatureCounters(j) = temperatureCounters(j) + 1
+                energyAverage(j) = energyAverage(j) + energy(i)
+                energySquaredAverage(j) = energySquaredAverage(j) + energySquared(i)
+                magneAverage(j) = magneAverage(j) + magne(i)
+                magneSquaredAverage(j) = magneSquaredAverage(j) + magneSquared(i)
+                magneAbsAverage(j) = magneAbsAverage(j) + magneAbs(i)
+            end if
+        end do
+    end do
+    
+    ! Divide by the number of documents
+    do i = 1, temperatureCount
+        energyAverage(i) = energyAverage(i) / temperatureCounters(i)
+        energySquaredAverage(i) = energySquaredAverage(i) / temperatureCounters(i)
+        magneAverage(i) = magneAverage(i) / temperatureCounters(i)
+        magneSquaredAverage(i) = magneSquaredAverage(i) / temperatureCounters(i)
+        magneAbsAverage(i) = magneAbsAverage(i) / temperatureCounters(i)
+    end do
+
+    ! Print the results
+    write(*,*) temperatureCount, " different temperatures found"
+    do i = 1, temperatureCount
+        write(*,*) "---------------------------------------------------------------"
+        write(*,*) "    Temperature: ", differentTemperatures(i)
+        write(*,*) "    Number of documents: ", temperatureCounters(i)
+        write(*,*) "    Energy: ", energyAverage(i), " +/- ", sqrt(energySquaredAverage(i) - energyAverage(i)**2)
+        write(*,*) "    Energy squared: ", energySquaredAverage(i)
+        write(*,*) "    Magnetization: ", magneAverage(i), " +/- ", sqrt(magneSquaredAverage(i) - magneAverage(i)**2)
+        write(*,*) "    Magnetization squared: ", magneSquaredAverage(i)
+        write(*,*) "    Magnetization absolute: ", magneAbsAverage(i)
 
 
-    write(*,*) "                                   - "
+        write(*,*) "                                   - "
 
-    write(*,*) "    Specific heat: ", (energySquaredAverage - energyAverage**2) / (temperature**2)
-    write(*,*) "    Susceptibility: ", (magneSquaredAverage - magneAbsAverage**2) / temperature
+        write(*,*) "    Specific heat: ", (energySquaredAverage(i) - energyAverage(i)**2) / (temperatures(i)**2)
+        write(*,*) "    Susceptibility: ", (magneSquaredAverage(i) - magneAbsAverage(i)**2) / temperatures(i)
 
+    end do
     write(*,*) "---------------------------------------------------------------"
     write(*,*) "Done!"
 

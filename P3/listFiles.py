@@ -7,9 +7,15 @@ import sys
 def listFiles(dir, fileName):
     with open(fileName, "w") as f:
         for root, dirs, files in os.walk(dir):
-            f.write(str(len(files)) + "\n")
+            filecount = 0
             for file in files:
                 if file.startswith("."):
+                    continue
+                filecount += 1
+            f.write(str(filecount) + "\n")
+            for file in files:
+                if file.startswith("."):
+
                     continue  # skip hidden files
                 f.write(os.path.join(root, file) + "\n")
 

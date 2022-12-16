@@ -15,6 +15,7 @@ program main
 
     real*8, allocatable, dimension(:) :: energy, energySquared, magne, magneSquared, magneAbs, temperatures
     real*8, allocatable, dimension(:) :: energyAverage,energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage
+    real*8, allocatable, dimension(:) :: specificHeat, magneticSusceptibility
     real*8 :: differentTemperatures(1000) ! Different temperatures arbitrarily large
     logical inMetadata, inList
     character(len=100) :: line
@@ -156,7 +157,8 @@ program main
     ! Allocate the arrays for the averages
     allocate(energyAverage(temperatureCount), energySquaredAverage(temperatureCount), &
              magneAverage(temperatureCount), magneSquaredAverage(temperatureCount), &
-             magneAbsAverage(temperatureCount), temperatureCounters(temperatureCount))
+             magneAbsAverage(temperatureCount), temperatureCounters(temperatureCount), &
+             specificHeat(temperatureCount), magneticSusceptibility(temperatureCount))
 
     ! Sum all the values for each temperature
     ! Initialize all the arrays to zero
@@ -190,6 +192,9 @@ program main
         magneAverage(i) = magneAverage(i) / temperatureCounters(i)
         magneSquaredAverage(i) = magneSquaredAverage(i) / temperatureCounters(i)
         magneAbsAverage(i) = magneAbsAverage(i) / temperatureCounters(i)
+
+        specificHeat(i) = (energySquaredAverage(i) - energyAverage(i)**2) / differentTemperatures(i)**2
+        magneticSusceptibility(i) = (magneSquaredAverage(i) - magneAverage(i)**2) / differentTemperatures(i)
     end do
 
     ! Print the results
@@ -207,13 +212,32 @@ program main
 
         write(*,*) "                                   - "
 
-        write(*,*) "    Specific heat: ", (energySquaredAverage(i) - energyAverage(i)**2) / (temperatures(i)**2)
-        write(*,*) "    Susceptibility: ", (magneSquaredAverage(i) - magneAbsAverage(i)**2) / temperatures(i)
+        write(*,*) "    Specific heat: ", specificHeat(i)
+        write(*,*) "    Susceptibility: ", magneticSusceptibility(i)
 
     end do
     write(*,*) "---------------------------------------------------------------"
     call cpu_time(finalTime)
     write(*,*) "Done! Time elapsed: ", finalTime - initTime, " seconds"
+
+    write(*,*) "---------------------------------------------------------------"
+    write(*,*) "Writing the results to file"
+
+    open(unit=20, file="dat/averages.dat", iostat=ios)
+    if ( ios /= 0 ) stop "Error opening file dat/averages.dat"
+
+    write(20, '(8a30)') "Temperature", "Energy", "Energy squared", &
+                         "Magnetization", "Magnetization squared", &
+                         "Magnetization absolute", "Specific heat", &
+                         "Magnetic susceptibility"
+    do i = 1, temperatureCount
+        write(20, '(8f30.4)') &
+            differentTemperatures(i), energyAverage(i), energySquaredAverage(i), &
+            magneAverage(i), magneSquaredAverage(i), magneAbsAverage(i), &
+            specificHeat(i), magneticSusceptibility(i)
+    end do
+
+    close(20)
 
 end program main
 

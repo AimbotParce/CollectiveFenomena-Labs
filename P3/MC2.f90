@@ -43,20 +43,24 @@ program main
     end do
 
 
-    write(*, *) "Metropolis algorithm by Marc Parcerisa" 
-    write(*, *) "-------------------------------------"
+    write(*,*)
+    write(*, *) "METROPOLIS ALGORITHM by Marc Parcerisa" 
+    write(*,*)
 
     call cpu_time(globalTimeStart)
 
     dtemp = (finalTemperature - temperature)/real(numTemperature, 8)
     do k = 1, numTemperature
         temp = temperature + real(k-1, 8)*dtemp
-        write(*, *) "Name: ", name
-        write(*, *) "Temperature: ", temperature
+        write(tempStr, "(f10.4)") temp
+        
+        write(*, *) "-------------------------------------"
+        write(*, *) "Name: ", trim(name)//"_"//trim(adjustl(tempStr))
+        write(*, *) "Temperature: ", temp
         write(*, *) "Original seed: ", originalSeed
         write(*, *) "Number of seeds: ", seedCount
         write(*, *) "Number of iterations: ", Niter
-        write(*, *) "Number of iterations to skip: ", skipIter
+        ! write(*, *) "Number of iterations to skip: ", skipIter
         write(*, *) "Height: ", height
         write(*, *) "Width: ", width
         write(*, *) "-------------------------------------"
@@ -65,7 +69,6 @@ program main
         call cpu_time(timeStart)
 
         write(seedStr, "(i10)") seed
-        write(tempStr, "(f10.4)") temp
         fileName = trim(name)//"_"//trim(adjustl(tempStr))//"_"//trim(adjustl(seedStr))//".dat"
         open(unit=10, file="dat/seedAverages/"//fileName, iostat=ios)
         if ( ios /= 0 ) stop "Error opening file dat/seedAverages/"//fileName
@@ -94,12 +97,15 @@ program main
         close(10)
 
         call cpu_time(timeEnd)
-        write(*, "(a, f10.4, a)") "    Done! Time elapsed: ", timeEnd - timeStart, " seconds"
+        write(*, "(a, f10.4, a)") "     Done! Time elapsed: ", timeEnd - timeStart, " seconds"
 
     end do
     end do
     call cpu_time(globalTimeEnd)
+    write(*, *) "-------------------------------------"
+    write(*, *) "Program finished!"
     write(*, "(a, f10.4, a)") "Total time elapsed: ", globalTimeEnd - globalTimeStart, " seconds"
+    write(*, *) "-------------------------------------"
 end program main
 
 

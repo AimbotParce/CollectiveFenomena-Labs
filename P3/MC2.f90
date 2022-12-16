@@ -44,21 +44,21 @@ program main
 
     write(*, *) "Metropolis algorithm by Marc Parcerisa" 
     write(*, *) "-------------------------------------"
-    write(*, *) "Name: ", name
-    write(*, *) "Temperature: ", temperature
-    write(*, *) "Original seed: ", originalSeed
-    write(*, *) "Number of seeds: ", seedCount
-    write(*, *) "Number of iterations: ", Niter
-    write(*, *) "Number of iterations to skip: ", skipIter
-    write(*, *) "Height: ", height
-    write(*, *) "Width: ", width
-    write(*, *) "-------------------------------------"
 
     call cpu_time(globalTimeStart)
 
     dtemp = (finalTemperature - temperature)/real(numTemperature, 8)
     do k = 1, numTemperature
         temp = temperature + real(k-1, 8)*dtemp
+        write(*, *) "Name: ", name
+        write(*, *) "Temperature: ", temperature
+        write(*, *) "Original seed: ", originalSeed
+        write(*, *) "Number of seeds: ", seedCount
+        write(*, *) "Number of iterations: ", Niter
+        write(*, *) "Number of iterations to skip: ", skipIter
+        write(*, *) "Height: ", height
+        write(*, *) "Width: ", width
+        write(*, *) "-------------------------------------"
     do seed = originalSeed, originalSeed + seedCount - 1
 
         call cpu_time(timeStart)

@@ -20,7 +20,7 @@ program main
     character(len=100) :: line
     integer lenMetadata, iteration, M, temperatureCount ! temperatureCount is the number of different temperatures
     integer, allocatable, dimension(:) :: temperatureCounters ! How many times each temperature appears
-    real*8 E
+    real*8 E, initTime, finalTime
 
     integer ios, i, j
     
@@ -44,6 +44,8 @@ program main
     write(*,*) "Height: ", height
     write(*,*) "Width: ", width
     write(*,*) "---------------------------------------------------------------"
+
+    call cpu_time(initTime)
 
     ! List all files in the folder
     ! call system("ls .\dat\seedAverages\ > dat\fileContents.txt")
@@ -210,7 +212,8 @@ program main
 
     end do
     write(*,*) "---------------------------------------------------------------"
-    write(*,*) "Done!"
+    call cpu_time(finalTime)
+    write(*,*) "Done! Time elapsed: ", finalTime - initTime, " seconds"
 
 end program main
 

@@ -1,7 +1,7 @@
 &input
     name = "MC2",
-    temperature = 1.575d0,
-    finalTemperature = 4.575d0,
+    temperature = 2.1d0,
+    finalTemperature = 2.5d0,
     numTemperature = 10,
     seedCount = 100,
     originalSeed = 1020923192,

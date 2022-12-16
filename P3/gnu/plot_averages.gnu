@@ -11,6 +11,6 @@ do for [i = 1:8:1] {
     set title word(labels, i)
     set output folder . word(labels, i) . ".png"
     set ylabel word(labels, i)." [r.u.]"
-    plot file u 1:i w l title ""
+    plot file using 1:i with linespoints title ""
 
 }

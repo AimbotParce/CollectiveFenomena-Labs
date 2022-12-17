@@ -1,4 +1,4 @@
-! Run the metropolis algorithm for a given temperature (written in a file dat/temp.dat)
+! Run the metropolis algorithm for a given temperature (given as an argument)
 ! All other parameters are read from dat/MC2.dat (This means that temperature-related parameters will be ignored)
 ! This is done to allow for parallelization of the temperature loop
 
@@ -52,11 +52,8 @@ program main
 
     call cpu_time(globalTimeStart)
 
-    ! Read the temperature file
-    open(unit=10, file="dat/temp.dat", iostat=ios)
-    if ( ios /= 0 ) stop "Error opening file dat/temp.dat"
-    read(10, *) temp
-    close(10)
+    ! Get the temperature
+    call parse_arguments(temp)
 
     ! Generate a string with the temperature to be used in the file name
     write(tempStr, "(f10.4)") temp
@@ -244,3 +241,37 @@ function magne(mat, width, height) result(sum)
     enddo
     
 end function magne
+
+
+subroutine parse_arguments(temp)
+
+    implicit none
+    real*8, intent(out) :: temp
+    
+    integer :: num_args, i
+    character(len=100), dimension(:), allocatable :: args
+    
+
+    num_args = command_argument_count()
+    allocate(args(num_args))
+    do i = 1, num_args
+        call get_command_argument(i,args(i))
+    end do
+
+    ! Set default value
+    temp = 0.d0
+
+    i = 1
+    do while ( i <= num_args )
+        if (args(i)(1:1) == '-') then
+            if (args(i)(2:2) == 't') then ! Temperature
+                read(args(i+1), *) temp
+                i = i + 1
+            else
+                write(*, *) "Unknown argument ", args(i)
+            end if
+        end if
+        i = i+1
+    end do
+
+end subroutine parse_arguments

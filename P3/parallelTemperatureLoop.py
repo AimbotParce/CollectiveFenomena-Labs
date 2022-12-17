@@ -19,18 +19,38 @@ temperatures[0] = 1.5
 temperatures[-1] = 4.5
 
 
+import logging as log
+
+# We'll use the logging module to format logs correctly.
+log.basicConfig(level=log.INFO, format="[%(asctime)s] %(levelname)s # %(message)s", datefmt="%H:%M:%S")
+log.getLogger().setLevel(log.INFO)
+
+import os  # To call the fortran program.
+import time
+
 # Loop temperatures (The programs read first the temperature and then start the metropolis loop.)
 # The only thing this script has to do is decide the next temperature to be computed, then call the
 # fortran program (execs/MC2-single-temperature.exe -t <temperature>).
 from concurrent.futures import ThreadPoolExecutor
-import os  # To call the fortran program.
+
+initialTime = time.time()
 
 threadPool = ThreadPoolExecutor(max_workers=16)  # We'll compute 16 temperatures at the same time.
 
-print("Computing temperatures...")
+
+def computeTemperature(temperature):
+    log.info(f"Computing temperature {temperature:.5f}...")
+    os.system(
+        f".{os.sep}execs{os.sep}MC2-single-temperature.exe -t {temperature:.5f} > .{os.sep}logs{os.sep}{temperature:.5f}.txt"
+    )
+    # I've added the > .{os.sep}logs{os.sep}{temperature:.5f}.txt to redirect the output to a file.
+
+
+log.info("Computing temperatures...")
 for temperature in temperatures:
-    threadPool.submit(os.system, f"execs/MC2-single-temperature.exe -t {temperature:.5f}")
+    threadPool.submit(computeTemperature, temperature)
 
 # Wait for all threads to finish.
 threadPool.shutdown(wait=True)
-print("All temperatures computed.")
+finalTime = time.time()
+log.info(f"All temperatures computed. Time elapsed: {finalTime-initialTime:.1f} seconds.")

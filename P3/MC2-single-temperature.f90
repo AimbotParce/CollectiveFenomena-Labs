@@ -74,8 +74,8 @@ program main
 
         write(seedStr, "(i10)") seed
         fileName = trim(name)//"_"//trim(adjustl(tempStr))//"_"//trim(adjustl(seedStr))//".dat"
-        open(unit=10, file="dat/seedAverages/"//fileName, iostat=ios)
-        if ( ios /= 0 ) stop "Error opening file dat/seedAverages/"//fileName
+        open(unit=10, file="dat/parallelTemperatures/"//fileName, iostat=ios)
+        if ( ios /= 0 ) stop "Error opening file dat/parallelTemperatures/"//fileName
 
         ! write(10, *) "# { temperature:", temperature, "seed:", seed, "Niter:", Niter, "skipIter:", skipIter, "height:", &
         !             & height, "width:", width, "}"

@@ -35,7 +35,7 @@ program main
     close(10)
 
 
-    write(*,*) "Computing averages for all the documents in the folder dat/seedAverages"
+    write(*,*) "Computing averages for all the documents in the folder"
     write(*,*) "---------------------------------------------------------------"
     write(*,*) "Name: ", name
     ! write(*,*) "Temperature: ", temp
@@ -52,7 +52,7 @@ program main
     ! List all files in the folder
     ! call system("ls .\dat\seedAverages\ > dat\fileContents.txt")
     ! ON WINDOWS, THIS DOES NOT WORK. I'LL USE PYTHON TO DO IT
-    call system("py listFiles.py dat/seedAverages/ dat/fileContents.txt")
+    call system("py listFiles.py dat/parallelTemperatures/ dat/fileContents.txt")
 
     open(unit=10, file="dat/fileContents.txt", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/fileContents.txt"

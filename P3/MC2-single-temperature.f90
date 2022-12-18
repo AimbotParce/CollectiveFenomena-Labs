@@ -9,9 +9,9 @@ program main
     
     integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature, meanEvery
     real*8 :: temperature, finalTemperature
-    character(len=30) :: name
+    character(len=30) :: name, folderName
     namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, meanEvery,&
-                     height, width
+                     height, width, folderName
                      
     real*8 energ, E
     integer*2 genrand_int2
@@ -74,8 +74,8 @@ program main
 
         write(seedStr, "(i10)") seed
         fileName = trim(name)//"_"//trim(adjustl(tempStr))//"_"//trim(adjustl(seedStr))//".dat"
-        open(unit=10, file="dat/parallelTemperatures/"//fileName, iostat=ios)
-        if ( ios /= 0 ) stop "Error opening file dat/parallelTemperatures/"//fileName
+        open(unit=10, file="dat/"//trim(adjustl(folderName))//"/"//fileName, iostat=ios)
+        if ( ios /= 0 ) stop "Error opening file dat/"//trim(adjustl(folderName))//"/"//fileName
 
         ! write(10, *) "# { temperature:", temperature, "seed:", seed, "Niter:", Niter, "skipIter:", skipIter, "height:", &
         !             & height, "width:", width, "}"

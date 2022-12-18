@@ -7,9 +7,9 @@ program main
     
     integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature, meanEvery
     real*8 :: temperature, finalTemperature
-    character(len=30) :: name
+    character(len=30) :: name, folderName
     namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, meanEvery,&
-                     height, width
+                     height, width, folderName
 
     character(len=100) :: filename
     integer fileCount
@@ -52,7 +52,7 @@ program main
     ! List all files in the folder
     ! call system("ls .\dat\seedAverages\ > dat\fileContents.txt")
     ! ON WINDOWS, THIS DOES NOT WORK. I'LL USE PYTHON TO DO IT
-    call system("py listFiles.py dat/parallelTemperatures/ dat/fileContents.txt")
+    call system("py listFiles.py dat/"//trim(adjustl(folderName))//"/ dat/fileContents.txt")
 
     open(unit=10, file="dat/fileContents.txt", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/fileContents.txt"

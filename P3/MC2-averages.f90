@@ -24,7 +24,7 @@ program main
     integer, allocatable, dimension(:) :: temperatureCounters ! How many times each temperature appears
     real*8 E, initTime, finalTime
 
-    integer ios, i, j, count
+    integer ios, i, j, count, N
     
     ! Read the input file
     open(unit=10, file="dat/MC2.dat", iostat=ios)
@@ -50,7 +50,7 @@ program main
     ! List all files in the folder
     ! call system("ls .\dat\seedAverages\ > dat\fileContents.txt")
     ! ON WINDOWS, THIS DOES NOT WORK. I'LL USE PYTHON TO DO IT
-    call system("py listFiles.py dat/"//trim(adjustl(folderName))//"/ dat/fileContents.txt")
+    call system("python3 listFiles.py dat/"//trim(adjustl(folderName))//"/ dat/fileContents.txt")
 
     open(unit=10, file="dat/fileContents.txt", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/fileContents.txt"
@@ -196,8 +196,8 @@ program main
         magneSquaredAverage(i) = magneSquaredAverage(i) / temperatureCounters(i)
         magneAbsAverage(i) = magneAbsAverage(i) / temperatureCounters(i)
 
-        specificHeat(i) = (energySquaredAverage(i) - energyAverage(i)**2) / differentTemperatures(i)**2 / width / height
-        magneticSusceptibility(i) = (magneSquaredAverage(i) - magneAverage(i)**2) / differentTemperatures(i) / width / height
+        specificHeat(i) = (energySquaredAverage(i) - energyAverage(i)**2) / differentTemperatures(i)**2
+        magneticSusceptibility(i) = (magneSquaredAverage(i) - magneAverage(i)**2) / differentTemperatures(i)
     end do
 
     ! Print the results
@@ -229,15 +229,17 @@ program main
     open(unit=20, file="dat/averages.dat", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/averages.dat"
 
+    N =  width * height
+
     write(20, '(8a30)') "Temperature", "Energy", "Energy squared", &
                          "Magnetization", "Magnetization squared", &
                          "Magnetization absolute", "Specific heat", &
                          "Magnetic susceptibility"
     do i = 1, temperatureCount
         write(20, '(8f30.4)') &
-            differentTemperatures(i), energyAverage(i), energySquaredAverage(i), &
-            magneAverage(i), magneSquaredAverage(i), magneAbsAverage(i), &
-            specificHeat(i), magneticSusceptibility(i)
+            differentTemperatures(i), energyAverage(i)/N, energySquaredAverage(i)/N, &
+            magneAverage(i)/N, magneSquaredAverage(i)/N, magneAbsAverage(i)/N, &
+            specificHeat(i)/N, magneticSusceptibility(i)/N
     end do
 
     close(20)

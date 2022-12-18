@@ -10,5 +10,5 @@
     meanEvery = 10,
     height = 48,
     width = 48,
-    folderName = "parallelTest",
+    folderName = "parallelSimu",
 &end

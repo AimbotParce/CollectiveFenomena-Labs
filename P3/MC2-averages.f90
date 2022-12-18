@@ -29,9 +29,7 @@ program main
     ! Read the input file
     open(unit=10, file="dat/MC2.dat", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/MC2.dat"
-
     read(10, input)
-
     close(10)
 
 
@@ -198,8 +196,8 @@ program main
         magneSquaredAverage(i) = magneSquaredAverage(i) / temperatureCounters(i)
         magneAbsAverage(i) = magneAbsAverage(i) / temperatureCounters(i)
 
-        specificHeat(i) = (energySquaredAverage(i) - energyAverage(i)**2) / differentTemperatures(i)**2
-        magneticSusceptibility(i) = (magneSquaredAverage(i) - magneAverage(i)**2) / differentTemperatures(i)
+        specificHeat(i) = (energySquaredAverage(i) - energyAverage(i)**2) / differentTemperatures(i)**2 / width / height
+        magneticSusceptibility(i) = (magneSquaredAverage(i) - magneAverage(i)**2) / differentTemperatures(i) / width / height
     end do
 
     ! Print the results

@@ -26,11 +26,12 @@ program main
     ! Read the input file
     open(unit=10, file="dat/MC2.dat", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/MC2.dat"
-
     read(10, input)
-
     close(10)
-    
+
+    ! Check if the folder exists, if not, create it
+    ! call system("mkdir dat\"//trim(adjustl(folderName)))
+    ! We'll suppose that python already created the folder
 
     allocate(S(1:width, 1:height), PBCx(0: width+1), PBCy(0: height+1))
     

@@ -33,6 +33,16 @@ import time
 # fortran program (execs/MC2-single-temperature.exe -t <temperature>).
 from concurrent.futures import ThreadPoolExecutor
 
+
+# Before starting, make sure the folder (specified in dat/MC2.dat) exists.ç
+with open("dat/MC2.dat", "r") as f:
+    for line in f:
+        args = line.split("=")
+        if args[0].strip() == "folderName":
+            folder = args[1].strip().strip(",").strip('"')
+
+os.makedirs(os.path.join("dat", folder), exist_ok=True)
+
 initialTime = time.time()
 
 threadPool = ThreadPoolExecutor(max_workers=16)  # We'll compute 16 temperatures at the same time.
@@ -40,9 +50,7 @@ threadPool = ThreadPoolExecutor(max_workers=16)  # We'll compute 16 temperatures
 
 def computeTemperature(temperature):
     log.info(f"Computing temperature {temperature:.5f}...")
-    os.system(
-        f".{os.sep}execs{os.sep}MC2-single-temperature.exe -t {temperature:.5f} > .{os.sep}logs{os.sep}{temperature:.5f}.txt"
-    )
+    os.system(f".{os.sep}execs{os.sep}MC2-single-temperature.exe -t {temperature:.5f} > .{os.sep}logs{os.sep}{temperature:.5f}.txt")
     # I've added the > .{os.sep}logs{os.sep}{temperature:.5f}.txt to redirect the output to a file.
 
 

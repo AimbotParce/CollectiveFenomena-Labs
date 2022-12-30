@@ -3,6 +3,7 @@ file = "dat/averages.dat"
 folder = "plots/"
 
 set terminal png size 1200,900 enhanced fontscale 1.5
+set pointsize 2.5
 set xlabel "Temperature [r.u.]"
 
 labels = "Temperature   Energy   Energy-squared   Magnetization   Magnetization-squared   Magnetization-absolute   Specific-heat   Magnetic-susceptibility"

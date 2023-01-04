@@ -66,7 +66,7 @@ def run(temperature, height, width):
 
 
 log.info("Computing temperatures...")
-for geom in [12, 24, 36, 48, 60, 72]:  # Compute for different system sizes
+for geom in [12, 24, 36, 48]:  # Compute for different system sizes , 60, 72 are skipped.
     height = geom
     width = geom
     for temperature in temperatures:

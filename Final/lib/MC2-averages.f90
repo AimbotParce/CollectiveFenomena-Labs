@@ -5,11 +5,9 @@ program main
 
     implicit none
     
-    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature, meanEvery
-    real*8 :: temperature, finalTemperature
-    character(len=30) :: name, folderName
-    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, meanEvery,&
-                     height, width, folderName
+    integer :: seedCount, originalSeed, Niter, skipIter, meanEvery
+    character(len=30) :: folderName
+    namelist /input/ seedCount, originalSeed, Niter, skipIter, meanEvery, folderName
 
     character(len=100) :: filename
     integer fileCount

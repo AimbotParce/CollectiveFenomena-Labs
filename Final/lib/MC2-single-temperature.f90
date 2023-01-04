@@ -7,27 +7,29 @@ program main
 
     implicit none
     
-    integer :: seedCount, originalSeed, Niter, skipIter, height, width, numTemperature, meanEvery
-    real*8 :: temperature, finalTemperature
-    character(len=30) :: name, folderName
-    namelist /input/ name, temperature, finalTemperature, numTemperature, seedCount, originalSeed, Niter, skipIter, meanEvery,&
-                     height, width, folderName
+    integer :: seedCount, originalSeed, Niter, skipIter, meanEvery
+    character(len=30) :: folderName
+    namelist /input/ seedCount, originalSeed, Niter, skipIter, meanEvery, folderName
                      
     real*8 energ, E
     integer*2 genrand_int2
-    real*8 timeStart, timeEnd, globalTimeStart, globalTimeEnd, temp
+    real*8 timeStart, timeEnd, globalTimeStart, globalTimeEnd, temperature
     character(len=30) :: fileName
     integer *2, allocatable, dimension(:, :) :: S
     integer, allocatable, dimension(:) :: PBCx, PBCy
 
     integer i, j, k, seed, ios
-    character(len=10) :: seedStr, tempStr
+    character(len=10) :: seedStr, tempStr, heightStr, widthStr ! Used to generate file names
 
     ! Read the input file
     open(unit=10, file="dat/MC2.dat", iostat=ios)
     if ( ios /= 0 ) stop "Error opening file dat/MC2.dat"
     read(10, input)
     close(10)
+
+    ! Parse the arguments (temperature, height, width)
+    call parse_arguments(temperature, height, width)
+
 
     ! Check if the folder exists, if not, create it
     ! call system("mkdir dat\"//trim(adjustl(folderName)))
@@ -53,34 +55,38 @@ program main
 
     call cpu_time(globalTimeStart)
 
-    ! Get the temperature
-    call parse_arguments(temp)
 
     ! Generate a string with the temperature to be used in the file name
-    write(tempStr, "(f10.4)") temp
+    write(tempStr, "(f10.4)") temperature
+    write(heightStr, "(i10)") height
+    write(widthStr, "(i10)") width
     
     write(*, *) "-------------------------------------"
-    write(*, *) "Name: ", trim(name)//"_"//trim(adjustl(tempStr))
-    write(*, *) "Temperature: ", temp
+    write(*, *) "Temperature: ", temperature
     write(*, *) "Original seed: ", originalSeed
     write(*, *) "Number of seeds: ", seedCount
     write(*, *) "Number of iterations: ", Niter
-    ! write(*, *) "Number of iterations to skip: ", skipIter
     write(*, *) "Height: ", height
     write(*, *) "Width: ", width
+    write(*, *) "Folder name: ", trim(adjustl(folderName))
     write(*, *) "-------------------------------------"
+    
+    write(*, *) "Runing metropolis algorithm over all the seeds..."
+    write(*, *) "-------------------------------------"
+
     do seed = originalSeed, originalSeed + seedCount - 1
 
         call cpu_time(timeStart)
 
         write(seedStr, "(i10)") seed
-        fileName = trim(name)//"_"//trim(adjustl(tempStr))//"_"//trim(adjustl(seedStr))//".dat"
+        fileName = trim(adjustl(folderName))//"/L"//trim(adjustl(tempStr))//"_H"//trim(adjustl(heightStr))// \&
+                 & "_W"//trim(adjustl(widthStr))//"_S"//trim(adjustl(seedStr))//".dat"
+                 
         open(unit=10, file="dat/"//trim(adjustl(folderName))//"/"//fileName, iostat=ios)
         if ( ios /= 0 ) stop "Error opening file dat/"//trim(adjustl(folderName))//"/"//fileName
 
-        ! write(10, *) "# { temperature:", temperature, "seed:", seed, "Niter:", Niter, "skipIter:", skipIter, "height:", &
-        !             & height, "width:", width, "}"
-        write(10, *) "# temperature = ", temp
+        ! Write information both on the header of the file, and on the terminal
+        write(10, *) "# temperature = ", temperature
         write(10, *) "# seed = ", seed
         write(10, *) "# Niter = ", Niter
         write(10, *) "# skipIter = ", skipIter
@@ -88,21 +94,24 @@ program main
         write(10, *) "# width = ", width
         write(10, *) "#"
 
-        write(*, *) "Runing metropolis algorithm with seed ", seed
+        write(*, *) "# Seed: ", seed
+        write(*, *) "# File name: ", fileName
+        
         ! Generate a random spin array
         call init_genrand(seed)
         do i = 1, width
-            do j = 1, height
-                S(i,j) = genrand_int2()
-            enddo
+        do j = 1, height
+            S(i,j) = genrand_int2()
+        enddo
         enddo
 
-        call metropolis(S, width, height, PBCx, PBCy, E, temp, Niter, 10)
+        call metropolis(S, width, height, PBCx, PBCy, E, temperature, Niter, 10)
 
         close(10)
 
         call cpu_time(timeEnd)
         write(*, "(a, f10.4, a)") "     Done! Time elapsed: ", timeEnd - timeStart, " seconds"
+        write(*, *) "-------------------------------------"
 
     end do
     call cpu_time(globalTimeEnd)
@@ -150,12 +159,12 @@ function energ(mat, width, height, PBCx, PBCy) result(energy)
 end function energ
 
 
-subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEnergy)
+subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature, newEnergy)
 
     implicit none
     integer, intent(in) :: width, height, PBCx(0: width+1), PBCy(0: height+1)
     integer*2, intent(inout) :: mat(1:width, 1:height)
-    real*8, intent(in) :: energy, temp
+    real*8, intent(in) :: energy, temperature
     real*8, intent(out) :: newEnergy
     real*8 deltaE, genrand_real2
 
@@ -163,7 +172,7 @@ subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEne
     real*8 :: expo(-8: 8)
 
     do i = -8, 8
-        expo(i) = exp(-i/temp)
+        expo(i) = exp(-i/temperature)
     end do
 
     newEnergy = energy
@@ -194,13 +203,13 @@ subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEne
     
 end subroutine monte_carlo_step
 
-subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temp, Niter, fileUnit)
+subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temperature, Niter, fileUnit)
     
     implicit none
     integer, intent(in) :: width, height, PBCx(0: width+1), PBCy(0: height+1), Niter
     integer*2, intent(inout) :: mat(1:width, 1:height)
     real*8, intent(inout) :: energy
-    real*8, intent(in) :: temp
+    real*8, intent(in) :: temperature
     real*8 newEnergy, energ
     integer fileUnit
 
@@ -212,7 +221,7 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temp, Niter, fileU
 
     write(fileUnit, "(a2, a12, 3a14)") "# ", "Iter", "Energy", "Energ Check", "Magnetization"
     do i = 1, Niter
-        call monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temp, newEnergy)
+        call monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature, newEnergy)
         energy = energ(mat, width, height, PBCx, PBCy)
         mag = magne(mat, width, height)
         write(fileUnit, "(i14.6, 1f14.1, i14)") i, energy, mag
@@ -244,10 +253,11 @@ function magne(mat, width, height) result(sum)
 end function magne
 
 
-subroutine parse_arguments(temp)
+subroutine parse_arguments(temperature, height, width)
 
     implicit none
-    real*8, intent(out) :: temp
+    real*8, intent(out) :: temperature
+    integer, intent(out) :: height, width
     
     integer :: num_args, i
     character(len=100), dimension(:), allocatable :: args
@@ -260,13 +270,21 @@ subroutine parse_arguments(temp)
     end do
 
     ! Set default value
-    temp = 0.d0
+    temperature = 0.d0
+    height = 0
+    width = 0
 
     i = 1
     do while ( i <= num_args )
         if (args(i)(1:1) == '-') then
             if (args(i)(2:2) == 't') then ! Temperature
-                read(args(i+1), *) temp
+                read(args(i+1), *) temperature
+                i = i + 1
+            else if (args(i)(2:2) == 'h') then ! Height
+                read(args(i+1), *) height
+                i = i + 1
+            else if (args(i)(2:2) == 'w') then ! Width
+                read(args(i+1), *) width
                 i = i + 1
             else
                 write(*, *) "Unknown argument ", args(i)
@@ -274,5 +292,11 @@ subroutine parse_arguments(temp)
         end if
         i = i+1
     end do
+
+    deallocate(args)
+
+    if (temperature == 0.d0) stop "Temperature not specified"
+    if (height == 0) stop "Height not specified"
+    if (width == 0) stop "Width not specified"
 
 end subroutine parse_arguments

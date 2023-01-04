@@ -30,7 +30,7 @@ import time
 
 # Loop temperatures (The programs read first the temperature and then start the metropolis loop.)
 # The only thing this script has to do is decide the next temperature to be computed, then call the
-# fortran program (execs/MC2-single-temperature.exe -t <temperature>).
+# fortran program (execs/MC2-single-temperature.exe -t <temperature> -h <height> -w <width>).
 from concurrent.futures import ThreadPoolExecutor
 
 

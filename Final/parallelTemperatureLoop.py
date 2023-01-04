@@ -52,8 +52,8 @@ log.info("Done compiling.")
 
 initialTime = time.time()
 
-threadPool = ThreadPoolExecutor(max_workers=6)
-# We'll compute 6 temperatures at the same time (That's the ammount of cores in my computer.)
+threadPool = ThreadPoolExecutor(max_workers=8)
+# We'll compute 8 temperatures at the same time (That's the ammount of cores in my computer.)
 
 
 def run(temperature, height, width):

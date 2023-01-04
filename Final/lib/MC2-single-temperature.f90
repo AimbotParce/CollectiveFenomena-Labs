@@ -18,7 +18,7 @@ program main
     integer *2, allocatable, dimension(:, :) :: S
     integer, allocatable, dimension(:) :: PBCx, PBCy
 
-    integer i, j, k, seed, ios
+    integer i, j, k, seed, ios, height, width
     character(len=10) :: seedStr, tempStr, heightStr, widthStr ! Used to generate file names
 
     ! Read the input file
@@ -79,8 +79,8 @@ program main
         call cpu_time(timeStart)
 
         write(seedStr, "(i10)") seed
-        fileName = trim(adjustl(folderName))//"/T"//trim(adjustl(tempStr))//"_H"//trim(adjustl(heightStr))// \&
-                 & "_W"//trim(adjustl(widthStr))//"_S"//trim(adjustl(seedStr))//".dat"
+        fileName = trim(adjustl(folderName))//"/T"//trim(adjustl(tempStr))//"_H"//trim(adjustl(heightStr))// &
+                   "_W"//trim(adjustl(widthStr))//"_S"//trim(adjustl(seedStr))//".dat"
                  
         open(unit=10, file="dat/"//trim(adjustl(folderName))//"/"//fileName, iostat=ios)
         if ( ios /= 0 ) stop "Error opening file dat/"//trim(adjustl(folderName))//"/"//fileName

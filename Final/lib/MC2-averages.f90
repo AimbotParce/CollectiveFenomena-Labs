@@ -10,7 +10,7 @@ program main
     namelist /input/ seedCount, originalSeed, Niter, skipIter, meanEvery, folderName
 
     character(len=100) :: filename
-    integer fileCount
+    integer fileCount, width, height
 
     real*8, allocatable, dimension(:) :: energy, energySquared, magne, magneSquared, magneAbs, temperatures
     real*8, allocatable, dimension(:) :: energyAverage,energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage
@@ -33,14 +33,11 @@ program main
 
     write(*,*) "Computing averages for all the documents in the folder"
     write(*,*) "---------------------------------------------------------------"
-    write(*,*) "Name: ", name
     ! write(*,*) "Temperature: ", temp
     write(*,*) "Seed count: ", seedCount
     write(*,*) "Original seed: ", originalSeed
     write(*,*) "Iterations: ", Niter
     write(*,*) "Skip iterations: ", skipIter
-    write(*,*) "Height: ", height
-    write(*,*) "Width: ", width
     write(*,*) "---------------------------------------------------------------"
 
     call cpu_time(initTime)

@@ -121,6 +121,53 @@ program main
     write(*, *) "-------------------------------------"
 end program main
 
+subroutine parse_arguments(temperature, height, width)
+
+    implicit none
+    real*8, intent(out) :: temperature
+    integer, intent(out) :: height, width
+    
+    integer :: num_args, i
+    character(len=100), dimension(:), allocatable :: args
+    
+
+    num_args = command_argument_count()
+    allocate(args(num_args))
+    do i = 1, num_args
+        call get_command_argument(i,args(i))
+    end do
+
+    ! Set default value
+    temperature = 0.d0
+    height = 0
+    width = 0
+
+    i = 1
+    do while ( i <= num_args )
+        if (args(i)(1:1) == '-') then
+            if (args(i)(2:2) == 't') then ! Temperature
+                read(args(i+1), *) temperature
+                i = i + 1
+            else if (args(i)(2:2) == 'h') then ! Height
+                read(args(i+1), *) height
+                i = i + 1
+            else if (args(i)(2:2) == 'w') then ! Width
+                read(args(i+1), *) width
+                i = i + 1
+            else
+                write(*, *) "Unknown argument ", args(i)
+            end if
+        end if
+        i = i+1
+    end do
+
+    deallocate(args)
+
+    if (temperature == 0.d0) stop "Temperature not specified"
+    if (height == 0) stop "Height not specified"
+    if (width == 0) stop "Width not specified"
+
+end subroutine parse_arguments
 
 function genrand_int2() result(output)
     
@@ -135,29 +182,6 @@ function genrand_int2() result(output)
     end if
 
 end function genrand_int2
-
-
-function energ(mat, width, height, PBCx, PBCy) result(energy)
-
-    implicit none
-    integer, intent(in) :: width, height, PBCx(0: width+1), PBCy(0: height+1)
-    integer*2, intent(in) :: mat(1:width, 1:height)
-    real*8 :: energy
-
-    integer i, j, sum
-
-    sum = 0
-
-    do i = 1, width
-        do j = 1, height
-            sum = sum - mat(i,j)*mat(PBCx(i+1), j) - mat(i,j)*mat(i, PBCy(j+1))
-        enddo
-    enddo
-
-    energy = real(sum, 8)
-    
-end function energ
-
 
 subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature)
 
@@ -227,6 +251,26 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temperature, Niter
 
 end subroutine metropolis
 
+function energ(mat, width, height, PBCx, PBCy) result(energy)
+
+    implicit none
+    integer, intent(in) :: width, height, PBCx(0: width+1), PBCy(0: height+1)
+    integer*2, intent(in) :: mat(1:width, 1:height)
+    real*8 :: energy
+
+    integer i, j, sum
+
+    sum = 0
+
+    do i = 1, width
+        do j = 1, height
+            sum = sum - mat(i,j)*mat(PBCx(i+1), j) - mat(i,j)*mat(i, PBCy(j+1))
+        enddo
+    enddo
+
+    energy = real(sum, 8)
+    
+end function energ
 
 function magne(mat, width, height) result(sum)
 
@@ -245,52 +289,3 @@ function magne(mat, width, height) result(sum)
     enddo
     
 end function magne
-
-
-subroutine parse_arguments(temperature, height, width)
-
-    implicit none
-    real*8, intent(out) :: temperature
-    integer, intent(out) :: height, width
-    
-    integer :: num_args, i
-    character(len=100), dimension(:), allocatable :: args
-    
-
-    num_args = command_argument_count()
-    allocate(args(num_args))
-    do i = 1, num_args
-        call get_command_argument(i,args(i))
-    end do
-
-    ! Set default value
-    temperature = 0.d0
-    height = 0
-    width = 0
-
-    i = 1
-    do while ( i <= num_args )
-        if (args(i)(1:1) == '-') then
-            if (args(i)(2:2) == 't') then ! Temperature
-                read(args(i+1), *) temperature
-                i = i + 1
-            else if (args(i)(2:2) == 'h') then ! Height
-                read(args(i+1), *) height
-                i = i + 1
-            else if (args(i)(2:2) == 'w') then ! Width
-                read(args(i+1), *) width
-                i = i + 1
-            else
-                write(*, *) "Unknown argument ", args(i)
-            end if
-        end if
-        i = i+1
-    end do
-
-    deallocate(args)
-
-    if (temperature == 0.d0) stop "Temperature not specified"
-    if (height == 0) stop "Height not specified"
-    if (width == 0) stop "Width not specified"
-
-end subroutine parse_arguments

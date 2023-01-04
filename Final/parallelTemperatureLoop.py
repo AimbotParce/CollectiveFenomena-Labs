@@ -7,8 +7,8 @@ import numpy as np
 from scipy import stats
 
 # Generate a normal distribution with mean 1.3 and standard deviation 0.2.
-distribution = stats.norm(loc=2.3, scale=0.5)
-bounds_for_range = distribution.cdf([1.5, 4.5])
+distribution = stats.norm(loc=2.3, scale=0.3)
+bounds_for_range = distribution.cdf([1.5, 3.0])
 
 temperatures = np.linspace(*bounds_for_range, num=50)
 temperatures = distribution.ppf(temperatures)
@@ -16,7 +16,7 @@ temperatures = distribution.ppf(temperatures)
 
 # Fix the first temperature to be 1.5, and the last to be 4.5.
 temperatures[0] = 1.5
-temperatures[-1] = 4.5
+temperatures[-1] = 3.0
 
 
 import logging as log
@@ -52,18 +52,25 @@ log.info("Done compiling.")
 
 initialTime = time.time()
 
-threadPool = ThreadPoolExecutor(max_workers=16)  # We'll compute 16 temperatures at the same time.
+threadPool = ThreadPoolExecutor(max_workers=6)
+# We'll compute 6 temperatures at the same time (That's the ammount of cores in my computer.)
 
 
-def computeTemperature(temperature):
+def run(temperature, height, width):
     log.info(f"Computing temperature {temperature:.5f}...")
-    os.system(f".{os.sep}execs{os.sep}MC2-single-temperature.exe -t {temperature:.5f} > .{os.sep}logs{os.sep}{temperature:.5f}.txt")
-    # I've added the > .{os.sep}logs{os.sep}{temperature:.5f}.txt to redirect the output to a file.
+    executable = os.path.join("execs", "MC2-single-temperature.exe")
+    args = f"-t {temperature:.5f} -h {height} -w {width}"
+    logOutput = os.path.join("logs", f"T{temperature:.5f}_L{height}.txt")  # Suppose height = width = L
+    os.system(f"{executable} {args} > {logOutput}")
+    # I've added the > {logOutput} to redirect the output of the program to a file.
 
 
 log.info("Computing temperatures...")
-for temperature in temperatures:
-    threadPool.submit(computeTemperature, temperature)
+for geom in [12, 24, 36, 48, 60, 72]:  # Compute for different system sizes
+    height = geom
+    width = geom
+    for temperature in temperatures:
+        threadPool.submit(run, temperature, height, width)
 
 # Wait for all threads to finish.
 threadPool.shutdown(wait=True)

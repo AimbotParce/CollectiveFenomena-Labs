@@ -4,5 +4,5 @@
     Niter = 80000,
     skipIter = 8000,
     meanEvery = 20,
-    folderName = "finalSimulation",
+    folderName = "multiGeomSimu",
 &end

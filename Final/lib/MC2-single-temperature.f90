@@ -79,7 +79,7 @@ program main
         call cpu_time(timeStart)
 
         write(seedStr, "(i10)") seed
-        fileName = trim(adjustl(folderName))//"/L"//trim(adjustl(tempStr))//"_H"//trim(adjustl(heightStr))// \&
+        fileName = trim(adjustl(folderName))//"/T"//trim(adjustl(tempStr))//"_H"//trim(adjustl(heightStr))// \&
                  & "_W"//trim(adjustl(widthStr))//"_S"//trim(adjustl(seedStr))//".dat"
                  
         open(unit=10, file="dat/"//trim(adjustl(folderName))//"/"//fileName, iostat=ios)

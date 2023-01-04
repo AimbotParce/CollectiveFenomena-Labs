@@ -1,0 +1,14 @@
+&input
+    name = "MC2",
+    temperature = 2.1d0,
+    finalTemperature = 2.5d0,
+    numTemperature = 10,
+    seedCount = 200,
+    originalSeed = 21951951,
+    Niter = 80000,
+    skipIter = 8000,
+    meanEvery = 20,
+    height = 48,
+    width = 48,
+    folderName = "finalSimulation",
+&end

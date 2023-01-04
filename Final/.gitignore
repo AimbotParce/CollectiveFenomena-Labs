@@ -1,0 +1,3 @@
+*.dat
+!MC2.dat
+logs/

@@ -14,7 +14,7 @@ program main
     real*8 energ, E
     integer*2 genrand_int2
     real*8 timeStart, timeEnd, globalTimeStart, globalTimeEnd, temperature
-    character(len=30) :: fileName
+    character(len=60) :: fileName
     integer *2, allocatable, dimension(:, :) :: S
     integer, allocatable, dimension(:) :: PBCx, PBCy
 

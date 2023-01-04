@@ -159,13 +159,12 @@ function energ(mat, width, height, PBCx, PBCy) result(energy)
 end function energ
 
 
-subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature, newEnergy)
+subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature)
 
     implicit none
     integer, intent(in) :: width, height, PBCx(0: width+1), PBCy(0: height+1)
     integer*2, intent(inout) :: mat(1:width, 1:height)
     real*8, intent(in) :: energy, temperature
-    real*8, intent(out) :: newEnergy
     real*8 deltaE, genrand_real2
 
     integer :: randPoint, i, j, k
@@ -175,7 +174,6 @@ subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature,
         expo(i) = exp(-i/temperature)
     end do
 
-    newEnergy = energy
     do k = 1, width*height
 
         ! Generate a random number between 1 and width*height
@@ -190,11 +188,9 @@ subroutine monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature,
 
         if (deltaE <= 0) then
             mat(i,j) = -mat(i,j)
-            newEnergy = newEnergy + deltaE
         else
             if (genrand_real2() <= expo(int(deltaE))) then
                 mat(i,j) = -mat(i,j)
-                newEnergy = newEnergy + deltaE
             end if
         end if
 
@@ -210,7 +206,7 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temperature, Niter
     integer*2, intent(inout) :: mat(1:width, 1:height)
     real*8, intent(inout) :: energy
     real*8, intent(in) :: temperature
-    real*8 newEnergy, energ
+    real*8 energ
     integer fileUnit
 
     character(len=40) fmt
@@ -218,10 +214,9 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temperature, Niter
 
     integer i, ios
 
-
     write(fileUnit, "(a2, a12, 3a14)") "# ", "Iter", "Energy", "Energ Check", "Magnetization"
     do i = 1, Niter
-        call monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature, newEnergy)
+        call monte_carlo_step(mat, width, height, PBCx, PBCy, energy, temperature)
         energy = energ(mat, width, height, PBCx, PBCy)
         mag = magne(mat, width, height)
         write(fileUnit, "(i14.6, 1f14.1, i14)") i, energy, mag
@@ -229,7 +224,6 @@ subroutine metropolis(mat, width, height, PBCx, PBCy, energy, temperature, Niter
 
     write(*, *) "    Final energy: ", energy
     write(*, *) "    Final magnetization: ", mag
-
 
 end subroutine metropolis
 

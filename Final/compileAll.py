@@ -19,3 +19,7 @@ def compile():
         fortranFile = os.path.join("lib", file)
         exeFile = os.path.join("execs", os.path.splitext(file)[0] + ".exe")
         os.system(f"gfortran -O3 {deps} {fortranFile} -o {exeFile}")
+
+
+if __name__ == "__main__":
+    compile()

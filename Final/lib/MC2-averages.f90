@@ -20,9 +20,9 @@ program main
 
     ! Allocatable data, will store the averages for each temperature, for each system size.
     integer count
-    real*8, allocatable, dimension(:) :: energyAverage,energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage
-    real*8, allocatable, dimension(:) :: specificHeat, magneticSusceptibility
-    integer, allocatable, dimension(:) :: multiDimCounter
+    real*8, allocatable, dimension(:, :) :: energyAverage,energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage
+    real*8, allocatable, dimension(:, :) :: specificHeat, magneticSusceptibility
+    integer, allocatable, dimension(:, :) :: multiDimCounter
     integer Sindex, Tindex ! Indexes we have to use to store the data in the right place in the arrays
     ! multiDimCounter is a counter for the number of times we have computed the averages for each temperature and system size.
     ! Should be the same as seedCount, but I don't trust the user (myself) not to change the number of seeds in the input file
@@ -81,7 +81,7 @@ program main
     write(*,"(a,i5, a)") "Reading ", fileCount, " files"
 
     ! Allocate the 
-    allocate(temperature(fileCount), height(fileCount)) ! We will not allocate width, as it is the same as height for all files
+    allocate(temperature(fileCount), systemSize(fileCount))
     ! Also we will not allocate seed, as we really don't care about it to compute the averages.
     allocate(energy(fileCount), energySquared(fileCount), magne(fileCount), magneSquared(fileCount), magneAbs(fileCount)) 
 
@@ -114,7 +114,7 @@ program main
                 lenMetadata = lenMetadata + 1
                 ! Read the metadata; if you encounter a temperature or a system size, save it
                 if ( index(line, "temperature") > 0 ) then
-                    read(line(index(line, "=")+1:), '(f14.1)', iostat=ios) tempertemperatureatures(i)
+                    read(line(index(line, "=")+1:), '(f14.1)', iostat=ios) temperature(i)
                     if (ios /= 0) stop "Error reading file "// trim(filename)
 
                     ! Check if the temperature is already in the list
@@ -206,8 +206,9 @@ program main
 
     ! Allocate the arrays for the averages (alocate first energyAverage, then the rest with the same shape)
     allocate(energyAverage(systemSizeCount, temperatureCount))
-    allocate(energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage, multiDimCounter, &
+    allocate(energySquaredAverage, magneAverage, magneSquaredAverage, magneAbsAverage, &
             specificHeat, magneticSusceptibility, mold=energyAverage)
+    allocate(multiDimCounter(systemSizeCount, temperatureCount))
 
     ! Sum all the values for each temperature and system size
     ! Initialize all the arrays to zero
@@ -293,8 +294,9 @@ program main
 
     do i = 1, systemSizeCount
         ! Open the file
-        open(unit=10, file="dat/averages/averages_L"//trim(allSystemSizes(i))//".dat", iostat=ios)
-        if ( ios /= 0 ) stop "Error opening file dat/averages/averages_L"//trim(allSystemSizes(i))//".dat"
+        write(fileName, *) allSystemSizes(i) ! Reuse the fileName variable
+        open(unit=10, file="dat/averages/averages_L"//trim(fileName)//".dat", iostat=ios)
+        if ( ios /= 0 ) stop "Error opening file dat/averages/averages_<size>.dat"
 
         write(10, '(8a30)') "Temperature", "Energy", "Energy squared", &
                              "Magnetization", "Magnetization squared", &

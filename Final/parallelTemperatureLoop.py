@@ -57,7 +57,7 @@ threadPool = ThreadPoolExecutor(max_workers=8)
 
 
 def run(temperature, height, width):
-    log.info(f"Computing temperature {temperature:.5f}...")
+    log.info(f"Computing temperature {temperature:.5f} with size [{height} x {width}]...")
     executable = os.path.join("execs", "MC2-single-temperature.exe")
     args = f"-t {temperature:.5f} -h {height} -w {width}"
     logOutput = os.path.join("logs", f"T{temperature:.5f}_L{height}.txt")  # Suppose height = width = L
@@ -75,4 +75,4 @@ for geom in [12, 24, 36, 48]:  # Compute for different system sizes , 60, 72 are
 # Wait for all threads to finish.
 threadPool.shutdown(wait=True)
 finalTime = time.time()
-log.info(f"All temperatures computed. Time elapsed: {finalTime-initialTime:.1f} seconds.")
+log.info(f"All temperatures and geometries computed. Time elapsed: {finalTime-initialTime:.1f} seconds.")

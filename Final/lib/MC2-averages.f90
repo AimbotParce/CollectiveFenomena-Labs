@@ -129,8 +129,8 @@ program main
                         temperatureCount = temperatureCount + 1
                         allTemperatures(temperatureCount) = temperature(i)
                     end if
-                else if ( index(line, "width") > 0 ) then
-                    read(line(index(line, "=")+1:), *, iostat=ios) systemSize(i)
+                else if ( index(line, "height") > 0 ) then
+                    read(line(index(line, "=")+1:), '(i13)', iostat=ios) systemSize(i)
                     if (ios /= 0) stop "Error reading file "// trim(filename)
 
                     ! Check if the system size is already in the list

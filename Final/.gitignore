@@ -1,3 +1,5 @@
 *.dat
 !MC2.dat
 logs/
+
+dat/fileContents.txt

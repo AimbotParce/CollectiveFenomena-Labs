@@ -293,7 +293,7 @@ program main
     do i = 1, systemSizeCount
         ! Open the file
         write(fileName, *) allSystemSizes(i) ! Reuse the fileName variable
-        open(unit=10, file="dat/averages/averages_L"//trim(fileName)//".dat", iostat=ios)
+        open(unit=10, file="dat/averages/averages_L"//trim(adjustl(fileName))//".dat", iostat=ios)
         if ( ios /= 0 ) stop "Error opening file dat/averages/averages_<size>.dat"
 
         write(10, '(8a30)') "Temperature", "Energy", "Energy squared", &

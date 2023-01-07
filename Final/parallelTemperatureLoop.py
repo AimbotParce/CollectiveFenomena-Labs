@@ -44,7 +44,7 @@ with open("dat/MC2.dat", "r") as f:
 os.makedirs(os.path.join("dat", folder), exist_ok=True)
 
 log.info("Compiling all fortran codes...")
-import compileAll
+import lib.compileAll as compileAll
 
 compileAll.compile()
 log.info("Done compiling.")

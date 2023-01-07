@@ -237,10 +237,8 @@ program main
                 exit
             end if
         end do
-        if ( Sindex == -1 .or. Tindex == -1 ) then
-            stop "Error: system size or temperature not found"
-            ! This should be impossible, since all temperatures in all files should have been taken into account
-        end if
+        if ( Sindex == -1 .or. Tindex == -1 ) stop "Error: system size or temperature not found"
+        ! ^ This should be impossible, since all temperatures in all files should have been taken into account
         multiDimCounter(Sindex, Tindex) = multiDimCounter(Sindex, Tindex) + 1
         energyAverage(Sindex, Tindex) = energyAverage(Sindex, Tindex) + energy(i)
         energySquaredAverage(Sindex, Tindex) = energySquaredAverage(Sindex, Tindex) + energySquared(i)
@@ -305,8 +303,8 @@ program main
         N = allSystemSizes(i)**2
         do j = 1, temperatureCount
             write(10, '(8f30.4)') &
-                allTemperatures(j), energyAverage(i, j)/N, energySquaredAverage(i, j)/N, &
-                magneAverage(i, j)/N, magneSquaredAverage(i, j)/N, magneAbsAverage(i, j)/N, &
+                allTemperatures(j), energyAverage(i, j)/N, energySquaredAverage(i, j)/N**2, &
+                magneAverage(i, j)/N, magneSquaredAverage(i, j)/N**2, magneAbsAverage(i, j)/N, &
                 specificHeat(i, j)/N, magneticSusceptibility(i, j)/N
         end do
 

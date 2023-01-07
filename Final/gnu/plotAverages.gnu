@@ -13,11 +13,12 @@ set xlabel "Temperature [u.r.]"
 
 # This program will generate 8 plots for each L
 labels = "Temperatura   Energia   Energia^2   Magnetització   Magnetització^2   Magnetització(abs)   C_v   Susceptibilitat"
+fileNames = "temperatura energia energia2 magnetitzacio magnetitzacio2 magnetitzacioAbs cv susceptibilitat"
 do for [L = 12:72:12] {
     file = folderIn . docPrefix . L . docSuffix
     do for [i = 1:8:1] {
         # set title word(labels, i)
-        set output folderOut . docPrefix . L . "_" . word(labels, i) . ".png"
+        set output folderOut . docPrefix . L . "_" . word(fileNames, i) . ".png"
         set ylabel word(labels, i)." [u.r.]"
         plot file using 1:i with linespoints title ""
     }
@@ -27,7 +28,7 @@ do for [L = 12:72:12] {
 
 do for [i = 1:8:1] {
     # set title word(labels, i)
-    set output folderOut . word(labels, i) . ".png"
+    set output folderOut . word(fileNames, i) . ".png"
     set ylabel word(labels, i)." [u.r.]"
     plot for [L = 12:72:12] folderIn . docPrefix . L . docSuffix using 1:i with linespoints title "L = ".L
 }

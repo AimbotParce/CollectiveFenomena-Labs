@@ -9,16 +9,16 @@ docSuffix = ".dat"
 
 set terminal png size 1200,700 enhanced fontscale 2
 set pointsize 2.5
-set xlabel "Temperature [r.u.]"
+set xlabel "Temperature [u.r.]"
 
 # This program will generate 8 plots for each L
-labels = "Temperature   Energy   Energy-squared   Magnetization   Magnetization-squared   Magnetization-absolute   Specific-heat   Magnetic-susceptibility"
+labels = "Temperatura   Energia   Energia^2   Magnetització   Magnetització^2   Magnetització(abs)   C_v   Susceptibilitat"
 do for [L = 12:72:12] {
     file = folderIn . docPrefix . L . docSuffix
     do for [i = 1:8:1] {
-        set title word(labels, i)
+        # set title word(labels, i)
         set output folderOut . docPrefix . L . "_" . word(labels, i) . ".png"
-        set ylabel word(labels, i)." [r.u.]"
+        set ylabel word(labels, i)." [u.r.]"
         plot file using 1:i with linespoints title ""
     }
 }
@@ -26,8 +26,8 @@ do for [L = 12:72:12] {
 # Then generate 8 plots for each quantity comparing all L
 
 do for [i = 1:8:1] {
-    set title word(labels, i)
+    # set title word(labels, i)
     set output folderOut . word(labels, i) . ".png"
-    set ylabel word(labels, i)." [r.u.]"
+    set ylabel word(labels, i)." [u.r.]"
     plot for [L = 12:72:12] folderIn . docPrefix . L . docSuffix using 1:i with linespoints title "L = ".L
 }

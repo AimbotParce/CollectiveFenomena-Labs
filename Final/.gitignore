@@ -1,5 +1,7 @@
-*.dat
-!MC2.dat
-logs/
 
-dat/fileContents.txt
+dat/*
+!dat/averages/
+!MC2.dat
+
+logs/
+*.exe

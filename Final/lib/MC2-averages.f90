@@ -257,7 +257,7 @@ program main
         magneAbsAverage(i, j) = magneAbsAverage(i, j) / multiDimCounter(i, j)
 
         specificHeat(i, j) = (energySquaredAverage(i, j) - energyAverage(i, j)**2) / allTemperatures(j)**2
-        magneticSusceptibility(i, j) = (magneSquaredAverage(i, j) - magneAverage(i, j)**2) / allTemperatures(j)
+        magneticSusceptibility(i, j) = (magneSquaredAverage(i, j) - magneAbsAverage(i, j)**2) / allTemperatures(j)
     end do
     end do
 
@@ -272,7 +272,7 @@ program main
         write(*,*) "    Number of documents: ", multiDimCounter(i, j)
         write(*,*) "    Energy: ", energyAverage(i, j), " +/- ", sqrt(energySquaredAverage(i, j) - energyAverage(i, j)**2)
         write(*,*) "    Energy squared: ", energySquaredAverage(i, j)
-        write(*,*) "    Magnetization: ", magneAverage(i, j), " +/- ", sqrt(magneSquaredAverage(i, j) - magneAverage(i, j)**2)
+        write(*,*) "    Magnetization: ", magneAverage(i, j), " +/- ", sqrt(magneSquaredAverage(i, j) - magneAbsAverage(i, j)**2)
         write(*,*) "    Magnetization squared: ", magneSquaredAverage(i, j)
         write(*,*) "    Magnetization absolute: ", magneAbsAverage(i, j)
 
@@ -306,6 +306,9 @@ program main
                 allTemperatures(j), energyAverage(i, j)/N, energySquaredAverage(i, j)/N**2, &
                 magneAverage(i, j)/N, magneSquaredAverage(i, j)/N**2, magneAbsAverage(i, j)/N, &
                 specificHeat(i, j)/N, magneticSusceptibility(i, j)/N
+                ! The deviations are later calculated by gnuplot directly (desvE = sqrt(E2 - E**2)/sqrt(seedCount))
+                ! (given that E2 and E are already divided by N**2 and N, respectively)
+                ! And desvM = sqrt(M2 - M**2)/sqrt(seedCount)
         end do
 
         close(10)

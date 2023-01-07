@@ -5,10 +5,10 @@ import numpy as np
 # Read the data
 data = np.loadtxt("averages_L48.dat")
 
-temp, energy = data[:, 0], data[:, 1]
+temp, energy, specHeat = data[:, 0], data[:, 1], data[:, -2]
 
 # Compute the derivative
 derivative = np.gradient(energy, temp)
 
 # Write the derivative to a file
-np.savetxt("energy_derivative.dat", np.transpose([temp, derivative]))
+np.savetxt("energy_derivative_vs_specific_heat.dat", np.transpose([temp, derivative, specHeat]))

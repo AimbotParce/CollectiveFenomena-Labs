@@ -14,23 +14,23 @@ import numpy as np
 
 maximums = np.loadtxt("maximums.dat")
 
-L, T_max_C, errC, T_max_X, errX, maxC, maxX, critMagabsC, critMagabsX = maximums.T
+L, TcC, errTcC, TcX, errTcX, maxC, maxX, magabs_Tc_C, magabs_Tc_X = maximums.T
 
 plots = [
-    [np.log(T_max_C - 2.266), np.log(L)],
-    [np.log(T_max_X - 2.266), np.log(L)],
+    [np.log(TcC - 2.266), np.log(L)],
+    [np.log(TcX - 2.266), np.log(L)],
     [np.log(maxC), np.log(L)],
-    [np.log(critMagabsC), np.log(L)],
-    [np.log(critMagabsX), np.log(L)],
+    [np.log(magabs_Tc_C), np.log(L)],
+    [np.log(magabs_Tc_X), np.log(L)],
     [np.log(maxX), np.log(L)],
 ]
 
 names = [
-    ["log(T_max_C - 2.266)", "log(L)"],
-    ["log(T_max_X - 2.266)", "log(L)"],
+    ["log(TcC - 2.266)", "log(L)"],
+    ["log(TcX - 2.266)", "log(L)"],
     ["log(maxC)", "log(L)"],
-    ["log(critMagabsC)", "log(L)"],
-    ["log(critMagabsX)", "log(L)"],
+    ["log(magabs_Tc_C)", "log(L)"],
+    ["log(magabs_Tc_X)", "log(L)"],
     ["log(maxX)", "log(L)"],
 ]
 
@@ -38,7 +38,8 @@ names = [
 newX = np.linspace(2, 4.5, 100)
 for i, (y, x) in enumerate(plots):
     slope, intercept, fit = linearFit(x, y)
-    print("Fit for plot {}: ".format(i), slope, intercept)
+    pName = f"{names[i][0]}[{names[i][1]}]"
+    print(f"Fit for plot {pName:<30}: slope={slope[0][0]:.3} intercept={intercept[0]:.3}")
     newY = fit(newX)
     np.savetxt(
         f"exponents/fit_{names[i][0]}[{names[i][1]}].dat",

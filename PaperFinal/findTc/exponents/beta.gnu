@@ -1,6 +1,9 @@
 fileMax = "maximums.dat"
-fitC = "exponents/fit_log(critMagabsC)[log(L)].dat" # slope=[[-0.09819695]] intercept=[-0.18389357]
-fitX = "exponents/fit_log(critMagabsX)[log(L)].dat" # slope=[[-0.10647096]] intercept=[-0.37647197]
+fitC = "exponents/fit_log(magabs_Tc_C)[log(L)].dat"
+fitX = "exponents/fit_log(magabs_Tc_X)[log(L)].dat"
+
+equatCv = "y = -0.098 x - 0.184"
+equatX = "y = -0.106 x - 0.376"
 
 set terminal png size 1200,700 enhanced fontscale 2
 set pointsize 2.5
@@ -11,7 +14,7 @@ set output "figures/beta.png"
 set key top right
 
 plot \
-    fitC using 1:2 with lines title "", \
-    fitX using 1:2 with lines title "", \
     fileMax using (log($1)):(log($8)) with points title "Usant max(C_v)" pt 7, \
-    fileMax using (log($1)):(log($9)) with points title "Usant max(susc.)" pt 9
+    fileMax using (log($1)):(log($9)) with points title "Usant max(susc.)" pt 9, \
+    fitC using 1:2 with lines title equatCv, \
+    fitX using 1:2 with lines title equatX

@@ -1,4 +1,4 @@
-cols = "L^{1/\nu}t  C/L^{\alpha/\nu}  X/L^{\gamma/\nu} magnetization(abs)/L^{\beta/\nu}"
+cols = "L^{1/ν}t  C_v/L^{α/ν}  χ/L^{γ/ν} magnetization(abs)/L^{β/ν}"
 outNames = "C X magnetization(abs)"
 
 folder = "scaled/"
